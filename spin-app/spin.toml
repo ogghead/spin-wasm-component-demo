@@ -1,0 +1,30 @@
+spin_manifest_version = 2
+
+[application]
+name = "spin-app"
+version = "0.1.0"
+authors = ["Darwin Boersma <darwin@sprout.org>"]
+description = ""
+
+[[trigger.http]]
+route = "/rust-api"
+component = "rust-api"
+
+[component.rust-api]
+source = "rust-api/target/wasm32-wasip1/release/rust_api.wasm"
+allowed_outbound_hosts = []
+[component.rust-api.build]
+command = "cargo component build --release && ./../compose-middleware.sh target/wasm32-wasip1/release/rust_api.wasm"
+workdir = "rust-api"
+watch = ["src/**/*.rs", "Cargo.toml"]
+
+[[trigger.http]]
+route = "/py-api"
+component = "py-api"
+
+[component.py-api]
+source = "py-api/app.wasm"
+[component.py-api.build]
+command = "componentize-py -w spin-http componentize app -o app.wasm && ./../compose-middleware.sh app.wasm"
+workdir = "py-api"
+watch = ["*.py", "requirements.txt"]
